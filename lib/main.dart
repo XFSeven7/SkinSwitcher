@@ -122,9 +122,46 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     }
 
     if (File(rightImagePath).existsSync()) {
-      return Image.file(
-        File(rightImagePath),
-        fit: BoxFit.contain,
+      return Center(
+        child: Stack(
+          children: [
+            Center(
+              child:  Image.file(
+                File(rightImagePath),
+                fit: BoxFit.contain,
+              ),
+            ),
+
+            // 右上角的删除按钮
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+                  // 执行删除操作
+                  final file = File(rightImagePath);
+                  debugPrint("删除图片$rightImagePath");
+                  if (await file.exists()) {
+                    await file.delete();
+                    setState(() {});
+                  }
+                },
+              ),
+            ),
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: TextButton(
+                // icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () async {
+
+                  setState(() {});
+                }, child: Text("查看教程"),
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return Center(
