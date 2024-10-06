@@ -12,9 +12,6 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-    debugPrint("onDragDone details=6666666");
-
     return MaterialApp(
       home: SkinImageViewer(),
     );
@@ -39,11 +36,11 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
       List<FileSystemEntity> files = Directory(selectedDirectory)
           .listSync()
           .where((file) =>
-      file is File &&
-          (file.path.endsWith('.png') ||
-              file.path.endsWith('.jpg') ||
-              file.path.endsWith('.jpeg') ||
-              file.path.endsWith('.gif')))
+              file is File &&
+              (file.path.endsWith('.png') ||
+                  file.path.endsWith('.jpg') ||
+                  file.path.endsWith('.jpeg') ||
+                  file.path.endsWith('.gif')))
           .toList();
       setState(() {
         leftImageFiles = files.cast<File>();
@@ -75,7 +72,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     }
 
     String rightImagePath =
-    path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
+        path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
 
     if (File(rightImagePath).existsSync()) {
       return Image.file(
@@ -112,11 +109,11 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   });
                 }
               },
-
               child: Container(
                 height: 300,
                 width: 300,
-                color: _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
+                color:
+                    _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
                 child: Center(
                   child: Text("拖拽图片到这里"),
                 ),
@@ -131,9 +128,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Skin Image Viewer"),
-      ),
       body: Row(
         children: [
           // Left side: Folder picker and image list
@@ -141,51 +135,60 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
             flex: 2,
             child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: _pickLeftFolder,
-                  child: Text('选择左边文件夹'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _pickLeftFolder,
+                    child: Text('选择左边文件夹'),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
+                      ),
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: leftImageFiles.isEmpty
                       ? Center(child: Text('左边未选择图片'))
                       : ListView.builder(
-                    itemCount: leftImageFiles.length,
-                    itemBuilder: (context, index) {
-                      String imageName = path.basename(leftImageFiles[index].path);
-                      bool hasCorrespondingImage =
-                      _hasCorrespondingImage(imageName);
-                      bool isSelected =
-                          selectedLeftImage == leftImageFiles[index];
+                          itemCount: leftImageFiles.length,
+                          itemBuilder: (context, index) {
+                            String imageName =
+                                path.basename(leftImageFiles[index].path);
+                            bool hasCorrespondingImage =
+                                _hasCorrespondingImage(imageName);
+                            bool isSelected =
+                                selectedLeftImage == leftImageFiles[index];
 
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: hasCorrespondingImage
-                              ? Colors.green.withOpacity(0.3)
-                              : Colors.red.withOpacity(0.3),
-                          border: isSelected
-                              ? Border.all(
-                            color: Colors.blue,
-                            width: 3.0,
-                          )
-                              : null,
-                        ),
-                        child: ListTile(
-                          leading: Image.file(
-                            leftImageFiles[index],
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                          title: Text(imageName),
-                          onTap: () {
-                            setState(() {
-                              selectedLeftImage = leftImageFiles[index];
-                            });
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: hasCorrespondingImage
+                                    ? Colors.green.withOpacity(0.3)
+                                    : Colors.red.withOpacity(0.3),
+                                border: isSelected
+                                    ? Border.all(
+                                        color: Colors.blue,
+                                        width: 3.0,
+                                      )
+                                    : null,
+                              ),
+                              child: ListTile(
+                                leading: Image.file(
+                                  leftImageFiles[index],
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                                title: Text(imageName),
+                                onTap: () {
+                                  setState(() {
+                                    selectedLeftImage = leftImageFiles[index];
+                                  });
+                                },
+                              ),
+                            );
                           },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
@@ -200,9 +203,17 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
             flex: 3,
             child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: _pickRightFolder,
-                  child: Text('选择右边文件夹'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _pickRightFolder,
+                    child: Text('选择右边文件夹'),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
+                      ),
+                    ),
+                  ),
                 ),
                 Expanded(
                   child: _getRightImageWidget(),
