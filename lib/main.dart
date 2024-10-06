@@ -65,6 +65,44 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     return File(rightImagePath).existsSync();
   }
 
+  // 提示用户后缀不同的对话框
+  Future<void> _showDifferentExtensionDialog(
+      BuildContext context, String extension, File file) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // 用户必须点击按钮才能关闭对话框
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('文件后缀不同'),
+          content: Text('拖拽的文件后缀是 .$extension，和当前选择的文件类型不同，是否继续操作？'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 取消操作
+              },
+            ),
+            TextButton(
+              child: Text('继续'),
+              onPressed: () async {
+                // imageFiles.add(file);
+                String fileName = path.basenameWithoutExtension(selectedLeftImage!.path); // 获取文件名，不包含后缀
+                String fileExtension = path.extension(file.path); // 获取文件的后缀名
+                String destPath = path.join(rightDirectory!, "$fileName$fileExtension"); // 拼接文件名和后缀
+                debugPrint("destPath: $destPath");
+                await file.copy(destPath); // 复制文件
+                setState((){
+                  _dragging = false;
+                });
+                Navigator.of(context).pop(); // 继续操作
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Function to get the widget to display on the right side
   Widget _getRightImageWidget() {
     if (selectedLeftImage == null || rightDirectory == null) {
@@ -73,6 +111,11 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
 
     String rightImagePath =
         path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
+
+    // 提取文件的后缀名
+    String _getFileExtension(String path) {
+      return path.split('.').last;
+    }
 
     if (File(rightImagePath).existsSync()) {
       return Image.file(
@@ -98,15 +141,30 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
               },
               onDragDone: (details) async {
                 debugPrint("detail = $details");
-                if (details.files.isNotEmpty && selectedLeftImage != null) {
-                  String fileName = path.basename(selectedLeftImage!.path);
-                  String destPath = path.join(rightDirectory!, fileName);
-                  File newFile = File(details.files.first.path);
-                  await newFile.copy(destPath);
-                  setState(() {
-                    // Update UI after drop
-                    _dragging = false;
-                  });
+
+                // 选中的图片的后缀
+                String selectedExtension =
+                    _getFileExtension(selectedLeftImage!.path);
+
+                String dropExtension =
+                    _getFileExtension(details.files.first.path);
+
+                if (selectedExtension != dropExtension) {
+                  // 后缀不同，弹出提示框
+                  File dropFile = new File(details.files.first.path);
+                  _showDifferentExtensionDialog(
+                      context, selectedExtension, dropFile);
+                } else {
+                  if (details.files.isNotEmpty && selectedLeftImage != null) {
+                    String fileName = path.basename(selectedLeftImage!.path);
+                    String destPath = path.join(rightDirectory!, fileName);
+                    File newFile = File(details.files.first.path);
+                    await newFile.copy(destPath);
+                    setState(() {
+                      // Update UI after drop
+                      _dragging = false;
+                    });
+                  }
                 }
               },
               child: Container(
@@ -139,7 +197,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _pickLeftFolder,
-                    child: Text('选择左边文件夹'),
+                    child: Text('选择源文件夹'),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
@@ -207,7 +265,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _pickRightFolder,
-                    child: Text('选择右边文件夹'),
+                    child: Text('选择对应文件夹'),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
