@@ -1,8 +1,7 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dropzone/flutter_dropzone.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:path/path.dart' as path;
 
 void main() {
@@ -27,7 +26,8 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   List<File> leftImageFiles = [];
   File? selectedLeftImage;
   String? rightDirectory;
-  late DropzoneViewController controller;
+  bool _dragging = false;
+  List<File> droppedFiles = [];
 
   // Function to pick folder for left side and load images
   Future<void> _pickLeftFolder() async {
@@ -85,33 +85,40 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('暂无对应图片，拖拽文件产生对应关系'),
-            Container(
-              height: 300,
-              width: 300,
-              child: Stack(
-                children: [
-                  DropzoneView(
-                    onCreated: (DropzoneViewController ctrl) =>
-                    controller = ctrl,
-                    onDrop: (ev) async {
-                      if (ev != null && selectedLeftImage != null) {
-                        final String fileName =
-                        path.basename(selectedLeftImage!.path);
-                        final String destPath = path.join(rightDirectory!, fileName);
-                        final byteData = await controller.getFileData(ev);
-                        final file = File(destPath);
-                        await file.writeAsBytes(byteData);
+            DropTarget(
+              onDragEntered: (details) {
+                debugPrint("ahsd: $details");
+                setState(() {
+                  _dragging = true;
+                });
+              },
+              onDragExited: (details) {
+                debugPrint("ahsd: $details");
+                setState(() {
+                  _dragging = false;
+                });
+              },
+              onDragDone: (details) async {
+                debugPrint("ahsd: $details");
 
-                        setState(() {
-                          // Refresh UI after drag-and-drop
-                        });
-                      }
-                    },
-                  ),
-                  Center(
-                    child: Text("拖拽图片到这里"),
-                  ),
-                ],
+                if (details.files.isNotEmpty && selectedLeftImage != null) {
+                  String fileName = path.basename(selectedLeftImage!.path);
+                  String destPath = path.join(rightDirectory!, fileName);
+                  File newFile = File(details.files.first.path!);
+                  await newFile.copy(destPath);
+                  setState(() {
+                    // Update UI after drop
+                    _dragging = false;
+                  });
+                }
+              },
+              child: Container(
+                height: 300,
+                width: 300,
+                color: _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
+                child: Center(
+                  child: Text("拖拽图片到这里"),
+                ),
               ),
             )
           ],
@@ -146,22 +153,35 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                       String imageName = path.basename(leftImageFiles[index].path);
                       bool hasCorrespondingImage =
                       _hasCorrespondingImage(imageName);
-                      return ListTile(
-                        tileColor: hasCorrespondingImage
-                            ? Colors.green.withOpacity(0.3)
-                            : Colors.red.withOpacity(0.3),
-                        leading: Image.file(
-                          leftImageFiles[index],
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
+                      bool isSelected =
+                          selectedLeftImage == leftImageFiles[index];
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: hasCorrespondingImage
+                              ? Colors.green.withOpacity(0.3)
+                              : Colors.red.withOpacity(0.3),
+                          border: isSelected
+                              ? Border.all(
+                            color: Colors.blue,
+                            width: 3.0,
+                          )
+                              : null,
                         ),
-                        title: Text(imageName),
-                        onTap: () {
-                          setState(() {
-                            selectedLeftImage = leftImageFiles[index];
-                          });
-                        },
+                        child: ListTile(
+                          leading: Image.file(
+                            leftImageFiles[index],
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                          title: Text(imageName),
+                          onTap: () {
+                            setState(() {
+                              selectedLeftImage = leftImageFiles[index];
+                            });
+                          },
+                        ),
                       );
                     },
                   ),
