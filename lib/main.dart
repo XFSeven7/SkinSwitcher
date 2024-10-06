@@ -28,6 +28,8 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   File? selectedLeftImage;
   String? rightDirectory;
   bool _dragging = false;
+  String leftBtnText = "选择源文件夹";
+  String rightBtnText = "选择对应文件夹";
 
   // Function to pick folder for left side and load images
   Future<void> _pickLeftFolder() async {
@@ -43,6 +45,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   file.path.endsWith('.gif')))
           .toList();
       setState(() {
+        leftBtnText = selectedDirectory;
         leftImageFiles = files.cast<File>();
       });
     }
@@ -52,6 +55,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   Future<void> _pickRightFolder() async {
     rightDirectory = await FilePicker.platform.getDirectoryPath();
     setState(() {
+      rightBtnText = rightDirectory!;
       // Refresh the UI when right folder is picked
     });
   }
@@ -197,7 +201,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _pickLeftFolder,
-                    child: Text('选择源文件夹'),
+                    child: Text(leftBtnText),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
@@ -265,7 +269,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _pickRightFolder,
-                    child: Text('选择对应文件夹'),
+                    child: Text(rightBtnText),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
