@@ -28,5 +28,8 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSFileAccessUsageDescription</key>
+    <string>应用需要访问文件夹以显示和操作图片。</string>
+
 </dict>
 </plist>

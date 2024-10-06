@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -11,6 +12,9 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    debugPrint("onDragDone details=6666666");
+
     return MaterialApp(
       home: SkinImageViewer(),
     );
@@ -27,7 +31,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   File? selectedLeftImage;
   String? rightDirectory;
   bool _dragging = false;
-  List<File> droppedFiles = [];
 
   // Function to pick folder for left side and load images
   Future<void> _pickLeftFolder() async {
@@ -87,24 +90,21 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
             Text('暂无对应图片，拖拽文件产生对应关系'),
             DropTarget(
               onDragEntered: (details) {
-                debugPrint("ahsd: $details");
                 setState(() {
                   _dragging = true;
                 });
               },
               onDragExited: (details) {
-                debugPrint("ahsd: $details");
                 setState(() {
                   _dragging = false;
                 });
               },
               onDragDone: (details) async {
-                debugPrint("ahsd: $details");
-
+                debugPrint("detail = $details");
                 if (details.files.isNotEmpty && selectedLeftImage != null) {
                   String fileName = path.basename(selectedLeftImage!.path);
                   String destPath = path.join(rightDirectory!, fileName);
-                  File newFile = File(details.files.first.path!);
+                  File newFile = File(details.files.first.path);
                   await newFile.copy(destPath);
                   setState(() {
                     // Update UI after drop
@@ -112,6 +112,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   });
                 }
               },
+
               child: Container(
                 height: 300,
                 width: 300,
