@@ -128,13 +128,12 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                 fit: BoxFit.contain,
               ),
             ),
-
             // 右上角的删除按钮
             Positioned(
               top: 8,
               right: 8,
               child: IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
+                icon: Icon(Icons.delete, color: Colors.blueAccent),
                 onPressed: () async {
                   // 执行删除操作
                   final file = File(rightImagePath);
@@ -168,6 +167,21 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 右上角的复制按钮
+            Positioned(
+              top: 8,
+              right: 60,
+              child: TextButton(
+                child: Text('快速复制源文件'),
+                onPressed: () async {
+                  String fileName = path.basename(selectedLeftImage!.path);
+                  String destPath = path.join(rightDirectory!, fileName);
+                  File newFile = File(selectedLeftImage!.path);
+                  await newFile.copy(destPath);
+                  setState(() {});
+                },
+              ),
+            ),
             Text('暂无对应图片，拖拽文件产生对应关系'),
             DropTarget(
               onDragEntered: (details) {
