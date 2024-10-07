@@ -35,11 +35,11 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
       List<FileSystemEntity> files = Directory(selectedDirectory)
           .listSync()
           .where((file) =>
-      file is File &&
-          (file.path.endsWith('.png') ||
-              file.path.endsWith('.jpg') ||
-              file.path.endsWith('.jpeg') ||
-              file.path.endsWith('.gif')))
+              file is File &&
+              (file.path.endsWith('.png') ||
+                  file.path.endsWith('.jpg') ||
+                  file.path.endsWith('.jpeg') ||
+                  file.path.endsWith('.gif')))
           .toList();
       setState(() {
         leftBtnText = selectedDirectory;
@@ -87,12 +87,14 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
               child: Text('继续'),
               onPressed: () async {
                 // imageFiles.add(file);
-                String fileName = path.basenameWithoutExtension(selectedLeftImage!.path); // 获取文件名，不包含后缀
+                String fileName = path.basenameWithoutExtension(
+                    selectedLeftImage!.path); // 获取文件名，不包含后缀
                 String fileExtension = path.extension(file.path); // 获取文件的后缀名
-                String destPath = path.join(rightDirectory!, "$fileName$fileExtension"); // 拼接文件名和后缀
+                String destPath = path.join(
+                    rightDirectory!, "$fileName$fileExtension"); // 拼接文件名和后缀
                 debugPrint("destPath: $destPath");
                 await file.copy(destPath); // 复制文件
-                setState((){
+                setState(() {
                   _dragging = false;
                 });
                 Navigator.of(context).pop(); // 继续操作
@@ -111,7 +113,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     }
 
     String rightImagePath =
-    path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
+        path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
 
     // 提取文件的后缀名
     String _getFileExtension(String path) {
@@ -123,7 +125,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
         child: Stack(
           children: [
             Center(
-              child:  Image.file(
+              child: Image.file(
                 File(rightImagePath),
                 fit: BoxFit.contain,
               ),
@@ -145,20 +147,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                 },
               ),
             ),
-            Positioned(
-              bottom: 8,
-              right: 8,
-              child: TextButton(
-                // icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () async {
-                  final Uri url = Uri.parse('https://github.com/XFSeven7/SkinSwitcher');
-                  bool a = await launchUrl(url);
-                  debugPrint("$a");
-
-                  setState(() {});
-                }, child: Text("查看教程"),
-              ),
-            ),
           ],
         ),
       );
@@ -168,9 +156,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // 右上角的复制按钮
-            Positioned(
-              top: 8,
-              right: 60,
+            Container(
               child: TextButton(
                 child: Text('快速复制源文件'),
                 onPressed: () async {
@@ -199,10 +185,10 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
 
                 // 选中的图片的后缀
                 String selectedExtension =
-                _getFileExtension(selectedLeftImage!.path);
+                    _getFileExtension(selectedLeftImage!.path);
 
                 String dropExtension =
-                _getFileExtension(details.files.first.path);
+                    _getFileExtension(details.files.first.path);
 
                 if (selectedExtension != dropExtension) {
                   // 后缀不同，弹出提示框
@@ -226,7 +212,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                 height: 300,
                 width: 300,
                 color:
-                _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
+                    _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
                 child: Center(
                   child: Text("拖拽图片到这里"),
                 ),
@@ -264,44 +250,44 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                   child: leftImageFiles.isEmpty
                       ? Center(child: Text('左边未选择图片'))
                       : ListView.builder(
-                    itemCount: leftImageFiles.length,
-                    itemBuilder: (context, index) {
-                      String imageName =
-                      path.basename(leftImageFiles[index].path);
-                      bool hasCorrespondingImage =
-                      _hasCorrespondingImage(imageName);
-                      bool isSelected =
-                          selectedLeftImage == leftImageFiles[index];
+                          itemCount: leftImageFiles.length,
+                          itemBuilder: (context, index) {
+                            String imageName =
+                                path.basename(leftImageFiles[index].path);
+                            bool hasCorrespondingImage =
+                                _hasCorrespondingImage(imageName);
+                            bool isSelected =
+                                selectedLeftImage == leftImageFiles[index];
 
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: hasCorrespondingImage
-                              ? Colors.green.withOpacity(0.3)
-                              : Colors.red.withOpacity(0.3),
-                          border: isSelected
-                              ? Border.all(
-                            color: Colors.blue,
-                            width: 3.0,
-                          )
-                              : null,
-                        ),
-                        child: ListTile(
-                          leading: Image.file(
-                            leftImageFiles[index],
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                          title: Text(imageName),
-                          onTap: () {
-                            setState(() {
-                              selectedLeftImage = leftImageFiles[index];
-                            });
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: hasCorrespondingImage
+                                    ? Colors.green.withOpacity(0.3)
+                                    : Colors.red.withOpacity(0.3),
+                                border: isSelected
+                                    ? Border.all(
+                                        color: Colors.blue,
+                                        width: 3.0,
+                                      )
+                                    : null,
+                              ),
+                              child: ListTile(
+                                leading: Image.file(
+                                  leftImageFiles[index],
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                                title: Text(imageName),
+                                onTap: () {
+                                  setState(() {
+                                    selectedLeftImage = leftImageFiles[index];
+                                  });
+                                },
+                              ),
+                            );
                           },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
@@ -311,29 +297,49 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
             width: 1,
             thickness: 1,
           ),
-          // Right side: Folder picker and image area
           Expanded(
-            flex: 3,
-            child: Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _pickRightFolder,
-                    child: Text(rightBtnText),
-                    style: ElevatedButton.styleFrom(
-                      shape:const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
+              flex: 3,
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _pickRightFolder,
+                          child: Text(rightBtnText),
+                          style: ElevatedButton.styleFrom(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero, // 设为 0 即可去掉圆角
+                            ),
+                          ),
+                        ),
                       ),
+                      Expanded(
+                        child: _getRightImageWidget(),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: TextButton(
+                      // icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        final Uri url =
+                        Uri.parse('https://github.com/XFSeven7/SkinSwitcher');
+                        bool a = await launchUrl(url);
+                        debugPrint("$a");
+
+                        setState(() {});
+                      },
+                      child: Text("查看教程"),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: _getRightImageWidget(),
-                ),
-              ],
-            ),
-          ),
+                ],
+
+              )),
+          // Right side: Folder picker and image area
         ],
       ),
     );
