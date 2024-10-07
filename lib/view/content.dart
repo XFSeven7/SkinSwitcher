@@ -28,7 +28,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   String leftBtnText = "选择源文件夹";
   String rightBtnText = "选择对应文件夹";
 
-  // Function to pick folder for left side and load images
   Future<void> _pickLeftFolder() async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
     if (selectedDirectory != null) {
@@ -48,16 +47,13 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     }
   }
 
-  // Function to pick folder for right side
   Future<void> _pickRightFolder() async {
     rightDirectory = await FilePicker.platform.getDirectoryPath();
     setState(() {
       rightBtnText = rightDirectory!;
-      // Refresh the UI when right folder is picked
     });
   }
 
-  // Function to check if a corresponding image exists on the right side
   bool _hasCorrespondingImage(String leftImageName) {
     if (rightDirectory == null) {
       return false;
@@ -106,7 +102,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     );
   }
 
-  // Function to get the widget to display on the right side
   Widget _getRightImageWidget() {
     if (selectedLeftImage == null || rightDirectory == null) {
       return Center(child: Text('未选择图片或右侧文件夹'));
@@ -135,7 +130,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
               top: 8,
               right: 8,
               child: IconButton(
-                icon: Icon(Icons.delete, color: Colors.blueAccent),
+                icon: Icon(Icons.delete, color: Colors.red),
                 onPressed: () async {
                   // 执行删除操作
                   final file = File(rightImagePath);
@@ -229,7 +224,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     return Scaffold(
       body: Row(
         children: [
-          // Left side: Folder picker and image list
           Expanded(
             flex: 2,
             child: Column(
@@ -324,7 +318,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                     bottom: 8,
                     right: 8,
                     child: TextButton(
-                      // icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () async {
                         final Uri url =
                         Uri.parse('https://github.com/XFSeven7/SkinSwitcher');
@@ -339,7 +332,6 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                 ],
 
               )),
-          // Right side: Folder picker and image area
         ],
       ),
     );
