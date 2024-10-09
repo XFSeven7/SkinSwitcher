@@ -27,6 +27,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   bool _dragging = false;
   String leftBtnText = "选择源文件夹";
   String rightBtnText = "选择对应文件夹";
+  String filterStr = "";
 
   Future<void> _pickLeftFolder() async {
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
@@ -34,11 +35,11 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
       List<FileSystemEntity> files = Directory(selectedDirectory)
           .listSync()
           .where((file) =>
-              file is File &&
-              (file.path.endsWith('.png') ||
-                  file.path.endsWith('.jpg') ||
-                  file.path.endsWith('.jpeg') ||
-                  file.path.endsWith('.gif')))
+      file is File &&
+          (file.path.endsWith('.png') ||
+              file.path.endsWith('.jpg') ||
+              file.path.endsWith('.jpeg') ||
+              file.path.endsWith('.gif')))
           .toList();
       setState(() {
         leftBtnText = selectedDirectory;
@@ -63,15 +64,16 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
   }
 
   // 提示用户后缀不同的对话框
-  Future<void> _showDifferentExtensionDialog(
-      BuildContext context, String extension, File file) async {
+  Future<void> _showDifferentExtensionDialog(BuildContext context,
+      String extension, File file) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // 用户必须点击按钮才能关闭对话框
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('文件后缀不同'),
-          content: Text('拖拽的文件后缀是 .$extension，和当前选择的文件类型不同，是否继续操作？'),
+          content: Text(
+              '拖拽的文件后缀是 .$extension，和当前选择的文件类型不同，是否继续操作？'),
           actions: <Widget>[
             TextButton(
               child: Text('取消'),
@@ -108,11 +110,13 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
     }
 
     String rightImagePath =
-        path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
+    path.join(rightDirectory!, path.basename(selectedLeftImage!.path));
 
     // 提取文件的后缀名
     String _getFileExtension(String path) {
-      return path.split('.').last;
+      return path
+          .split('.')
+          .last;
     }
 
     if (File(rightImagePath).existsSync()) {
@@ -180,10 +184,10 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
 
                 // 选中的图片的后缀
                 String selectedExtension =
-                    _getFileExtension(selectedLeftImage!.path);
+                _getFileExtension(selectedLeftImage!.path);
 
                 String dropExtension =
-                    _getFileExtension(details.files.first.path);
+                _getFileExtension(details.files.first.path);
 
                 if (selectedExtension != dropExtension) {
                   // 后缀不同，弹出提示框
@@ -207,7 +211,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                 height: 300,
                 width: 300,
                 color:
-                    _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
+                _dragging ? Colors.blue.withOpacity(0.4) : Colors.grey[200],
                 child: Center(
                   child: Text("拖拽图片到这里"),
                 ),
@@ -217,6 +221,28 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
         ),
       );
     }
+  }
+
+  /// 筛选包含指定文字的文件名
+  List<File> filterFilesByText(String text, List<File> leftImageFiles) {
+    // 创建一个新的集合，用于存储符合条件的文件
+    List<File> filteredFiles = [];
+
+    // 遍历文件列表
+    for (File file in leftImageFiles) {
+      // 获取文件名
+      String fileName = file.path
+          .split(Platform.pathSeparator)
+          .last;
+
+      // 检查文件名是否包含指定的文字
+      if (fileName.contains(text)) {
+        // 如果包含，将该文件添加到新集合
+        filteredFiles.add(file);
+      }
+    }
+
+    return filteredFiles;
   }
 
   @override
@@ -240,48 +266,60 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
                     ),
                   ),
                 ),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: '名字筛选',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (text) {
+                    filterStr = text;
+                    setState(() {
+
+                    });
+                  },
+                ),
                 Expanded(
                   child: leftImageFiles.isEmpty
                       ? Center(child: Text('左边未选择图片'))
                       : ListView.builder(
-                          itemCount: leftImageFiles.length,
-                          itemBuilder: (context, index) {
-                            String imageName =
-                                path.basename(leftImageFiles[index].path);
-                            bool hasCorrespondingImage =
-                                _hasCorrespondingImage(imageName);
-                            bool isSelected =
-                                selectedLeftImage == leftImageFiles[index];
+                    itemCount: filterFilesByText(filterStr, leftImageFiles).length,
+                    itemBuilder: (context, index) {
+                      String imageName =
+                      path.basename(filterFilesByText(filterStr, leftImageFiles)[index].path);
+                      bool hasCorrespondingImage =
+                      _hasCorrespondingImage(imageName);
+                      bool isSelected =
+                          selectedLeftImage == filterFilesByText(filterStr, leftImageFiles)[index];
 
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: hasCorrespondingImage
-                                    ? Colors.green.withOpacity(0.3)
-                                    : Colors.red.withOpacity(0.3),
-                                border: isSelected
-                                    ? Border.all(
-                                        color: Colors.blue,
-                                        width: 3.0,
-                                      )
-                                    : null,
-                              ),
-                              child: ListTile(
-                                leading: Image.file(
-                                  leftImageFiles[index],
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                ),
-                                title: Text(imageName),
-                                onTap: () {
-                                  setState(() {
-                                    selectedLeftImage = leftImageFiles[index];
-                                  });
-                                },
-                              ),
-                            );
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: hasCorrespondingImage
+                              ? Colors.green.withOpacity(0.3)
+                              : Colors.red.withOpacity(0.3),
+                          border: isSelected
+                              ? Border.all(
+                            color: Colors.blue,
+                            width: 3.0,
+                          )
+                              : null,
+                        ),
+                        child: ListTile(
+                          leading: Image.file(
+                            filterFilesByText(filterStr, leftImageFiles)[index],
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                          title: Text(imageName),
+                          onTap: () {
+                            setState(() {
+                              selectedLeftImage = filterFilesByText(filterStr, leftImageFiles)[index];
+                            });
                           },
                         ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
