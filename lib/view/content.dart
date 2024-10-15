@@ -39,6 +39,7 @@ class _SkinImageViewerState extends State<SkinImageViewer> {
           (file.path.endsWith('.png') ||
               file.path.endsWith('.jpg') ||
               file.path.endsWith('.jpeg') ||
+              file.path.endsWith('.webp') ||
               file.path.endsWith('.gif')))
           .toList();
       setState(() {
